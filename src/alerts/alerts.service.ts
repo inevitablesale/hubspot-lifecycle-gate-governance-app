@@ -1,12 +1,18 @@
 /**
  * Governance Alerts Service
  * Manages alerts for stage-gate violations and compliance issues
+ * 
+ * PRODUCTION NOTE: This implementation uses in-memory storage.
+ * For production deployments, implement:
+ * - Database storage (PostgreSQL, MongoDB) with proper indexing
+ * - Message queue for alert delivery (RabbitMQ, Redis Pub/Sub)
+ * - Email/Slack notifications for critical alerts
  */
 
 import { GovernanceAlert, AlertType, ComplianceViolation } from '../types';
 import { generateId, logger } from '../utils';
 
-// In-memory alert storage (use database in production)
+// In-memory storage - Replace with database for production
 const alertStore = new Map<string, GovernanceAlert>();
 const alertsByPortal = new Map<number, string[]>();
 const alertsByUser = new Map<string, string[]>();

@@ -13,7 +13,14 @@ import {
   alertRoutes,
   healthRoutes,
 } from './routes';
-import { errorHandler, notFoundHandler, requestLogger } from './middleware';
+import {
+  errorHandler,
+  notFoundHandler,
+  requestLogger,
+  apiLimiter,
+  authLimiter,
+  validationLimiter,
+} from './middleware';
 import config from './config';
 
 /**
@@ -52,9 +59,14 @@ export function createApp(): Express {
   // Request logging
   app.use(requestLogger);
 
-  // Routes
-  app.use('/oauth', oauthRoutes);
-  app.use('/api/validation', validationRoutes);
+  // Apply rate limiting in production
+  if (config.nodeEnv === 'production') {
+    app.use('/api/', apiLimiter);
+  }
+
+  // Routes with specific rate limiters
+  app.use('/oauth', authLimiter, oauthRoutes);
+  app.use('/api/validation', validationLimiter, validationRoutes);
   app.use('/crm-cards', crmCardRoutes);
   app.use('/api/scorecards', scorecardRoutes);
   app.use('/api/alerts', alertRoutes);

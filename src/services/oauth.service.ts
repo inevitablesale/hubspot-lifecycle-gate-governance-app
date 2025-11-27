@@ -1,5 +1,11 @@
 /**
  * OAuth Service for HubSpot Authentication
+ * 
+ * PRODUCTION NOTE: This implementation uses in-memory storage for tokens.
+ * For production deployments, replace with:
+ * - Redis for distributed/ephemeral storage with TTL
+ * - Database with encryption at rest for persistent storage
+ * - Secret management service (AWS Secrets Manager, HashiCorp Vault)
  */
 
 import axios from 'axios';
@@ -10,7 +16,8 @@ import { logger } from '../utils';
 const HUBSPOT_AUTH_URL = 'https://app.hubspot.com/oauth/authorize';
 const HUBSPOT_TOKEN_URL = 'https://api.hubapi.com/oauth/v1/token';
 
-// In-memory token storage (use Redis/DB in production)
+// In-memory token storage - Replace with persistent storage for production
+// See module-level documentation for production recommendations
 const tokenStore = new Map<number, OAuthTokens>();
 
 /**
