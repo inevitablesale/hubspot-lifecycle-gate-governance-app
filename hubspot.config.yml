@@ -1,0 +1,105 @@
+# HubSpot App Configuration
+# This file defines the app's configuration for HubSpot
+# See: https://developers.hubspot.com/docs/api/app-settings
+
+app:
+  name: "Lifecycle Gate Governance"
+  description: "Enforces lifecycle and deal stage-gate validation rules, ensuring required fields, dependencies, and entry criteria are met before progression. Provides rep scorecards, SLA tracking, coaching insights, and automated governance alerts."
+  uid: lifecycle-gate-governance
+  
+  # OAuth scopes required by the app
+  scopes:
+    - crm.objects.contacts.read
+    - crm.objects.contacts.write
+    - crm.objects.deals.read
+    - crm.objects.deals.write
+    - timeline
+    - crm.objects.owners.read
+
+  # Webhook subscriptions for real-time updates
+  webhooks:
+    - subscriptionType: contact.propertyChange
+      propertyName: lifecyclestage
+      enabled: true
+    - subscriptionType: deal.propertyChange
+      propertyName: dealstage
+      enabled: true
+
+  # CRM Extension cards
+  extensions:
+    crm:
+      cards:
+        - title: "Governance Status"
+          objectTypes:
+            - contacts
+          fetch:
+            targetUrl: "${BASE_URL}/crm-cards/contact"
+          display:
+            properties:
+              - name: lifecycleStage
+                label: "Lifecycle Stage"
+                dataType: STATUS
+              - name: complianceStatus
+                label: "Compliance Status"
+                dataType: STATUS
+              - name: potentialIssues
+                label: "Potential Issues"
+                dataType: NUMBER
+          actions:
+            baseUrls:
+              - "${BASE_URL}/crm-cards"
+              
+        - title: "Deal Governance"
+          objectTypes:
+            - deals
+          fetch:
+            targetUrl: "${BASE_URL}/crm-cards/deal"
+          display:
+            properties:
+              - name: dealStage
+                label: "Deal Stage"
+                dataType: STATUS
+              - name: amount
+                label: "Amount"
+                dataType: CURRENCY
+              - name: complianceStatus
+                label: "Compliance Status"
+                dataType: STATUS
+          actions:
+            baseUrls:
+              - "${BASE_URL}/crm-cards"
+
+  # Timeline event templates
+  timeline:
+    templates:
+      - id: stage_transition
+        name: "Stage Transition"
+        headerTemplate: "{{objectType}} stage changed from {{fromStage}} to {{toStage}}"
+        detailTemplate: "User: {{userId}}\nTimestamp: {{timestamp}}\nStatus: {{status}}"
+        objectTypes:
+          - contacts
+          - deals
+          
+      - id: validation_failed
+        name: "Validation Failed"
+        headerTemplate: "Stage transition validation failed"
+        detailTemplate: "{{errorCount}} validation errors detected.\nErrors: {{errors}}"
+        objectTypes:
+          - contacts
+          - deals
+          
+      - id: validation_passed
+        name: "Validation Passed"
+        headerTemplate: "Stage transition validated successfully"
+        detailTemplate: "Stage progression from {{fromStage}} to {{toStage}} approved."
+        objectTypes:
+          - contacts
+          - deals
+          
+      - id: compliance_alert
+        name: "Compliance Alert"
+        headerTemplate: "{{alertType}}: {{alertMessage}}"
+        detailTemplate: "A compliance alert was triggered for this record."
+        objectTypes:
+          - contacts
+          - deals
